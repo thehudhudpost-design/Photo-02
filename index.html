@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অটো ফটো কার্ড জেনারেটর - Voice Of Rising Bangla</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Hind Siliguri & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for High-Res Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .bangla-font {
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        input[type="range"] {
+            accent-color: #991b1b;
+        }
+        /* Fixed 1080x1080 base canvas scaled cleanly inside responsive wrapper */
+        #card-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #ffffff;
+            border-radius: 0.5rem;
+        }
+        #photo-card {
+            width: 1080px;
+            height: 1080px;
+            transform-origin: top left;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #ffffff;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-4 px-3 sm:px-6 flex flex-col items-center">
+
+    <!-- Top App Title -->
+    <header class="w-full max-w-xl text-center mb-4">
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 bangla-font">
+            <i class="fa-solid fa-wand-magic-sparkles text-red-800 mr-1"></i> অটো ফটো কার্ড জেনারেটর
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 bangla-font">লেখা ও ছবির নিখুঁত দূরত্বসহ HD ফটো কার্ড তৈরি করুন</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-xl flex flex-col gap-5">
+
+        <!-- LIVE PREVIEW CARD (Scaled 1080x1080 Canvas) -->
+        <div class="w-full bg-white rounded-xl shadow-lg p-2 sm:p-3 border border-slate-200">
+            <div id="card-wrapper">
+                <div id="photo-card" class="flex flex-col justify-between bangla-font">
+                    
+                    <!-- 1. TOP HEADER ZONE (Fixed Height: ~260px) -->
+                    <div class="w-full pt-[55px] px-[70px] z-20 shrink-0">
+                        <!-- Brand Logo -->
+                        <div class="flex flex-col items-center justify-center mb-[24px]">
+                            <img id="preview-logo-img" src="" alt="Brand Logo" class="hidden max-h-[85px] object-contain">
+                            <div id="preview-logo-text" class="text-center">
+                                <span class="text-[46px] font-bold tracking-tight text-slate-900">
+                                    𝐕𝐨𝐢𝐜𝐞 𝐎𝐟 <span class="text-[#991b1b]">𝐑𝐢𝐬𝐢𝐧𝐠</span> 𝐁𝐚𝐧𝐠𝐥𝐚
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Quote Icon + Date + Horizontal Line -->
+                        <div class="relative flex items-end justify-between">
+                            <!-- Large Dark Red Double Quote Icon -->
+                            <div class="text-[#991b1b] leading-none -mb-[10px] z-10 bg-white pr-3">
+                                <svg class="w-[74px] h-[58px] fill-current" viewBox="0 0 44 34">
+                                    <path d="M0 34V18.6C0 13.4 1.1 9.1 3.3 5.7C5.5 2.3 9.1 0.4 14.1 0V6.8C11.4 7.3 9.5 8.5 8.4 10.4C7.3 12.3 6.8 14.8 6.8 17.9H14.5V34H0ZM24.5 34V18.6C24.5 13.4 25.6 9.1 27.8 5.7C30 2.3 33.6 0.4 38.6 0V6.8C35.9 7.3 34 8.5 32.9 10.4C31.8 12.3 31.3 14.8 31.3 17.9H39V34H24.5Z"/>
+                                </svg>
+                            </div>
+
+                            <!-- Bengali Date on the Right -->
+                            <div id="preview-date" class="text-[26px] font-semibold text-slate-800 pb-[10px]">
+                                ০৩ নভেম্বর ২০২৬
+                            </div>
+                        </div>
+                        <!-- Horizontal Dark Line -->
+                        <div class="h-[4px] bg-slate-900 ml-[82px]" style="width: calc(100% - 82px);"></div>
+                    </div>
+
+                    <!-- 2. MIDDLE QUOTE ZONE (Dedicated Spacious Area: ~420px, Zero Overlap) -->
+                    <div class="w-full h-[410px] px-[80px] flex items-center justify-center z-20 shrink-0 overflow-hidden">
+                        <p id="preview-quote" class="text-center font-bold text-[#1e1e1e] leading-[1.48] tracking-normal" style="font-size: 48px;">
+                            নিজেদের ভাগ্য বদলানোর জন্য ইসলাম বলে নিজেদের বদলাতে, আর <span class="text-[#991b1b]">যে মুসলিমরা অপদার্থ, তারা নিজেদের না বদলিয়ে ইসলামকেই</span> বদলে দিতে চায়!
+                        </p>
+                    </div>
+
+                    <!-- 3. BOTTOM SPEAKER & WAVE ZONE (Fixed Height: 380px) -->
+                    <div class="relative w-full h-[380px] mt-auto shrink-0">
+                        
+                        <!-- Speaker Portrait Container (Bounded strictly inside bottom-left zone) -->
+                        <div class="absolute bottom-0 left-[15px] w-[420px] h-[360px] z-20 flex items-end justify-center pointer-events-none overflow-hidden">
+                            <!-- Default Clean Vector Silhouette Avatar (Replaced on Photo Upload) -->
+                            <svg id="default-person-svg" class="w-[330px] h-[330px] text-slate-700 drop-shadow-md" viewBox="0 0 240 240" fill="none">
+                                <circle cx="120" cy="82" r="46" fill="#cbd5e1"/>
+                                <path d="M84 62C84 40 100 28 120 28C140 28 156 40 156 62C145 55 95 55 84 62Z" fill="#1e293b"/>
+                                <path d="M92 98C92 118 104 134 120 134C136 134 148 118 148 98C140 108 100 108 92 98Z" fill="#334155"/>
+                                <path d="M32 240C38 182 74 154 120 154C166 154 202 182 208 240H32Z" fill="#94a3b8"/>
+                                <path d="M102 154L120 186L138 154H102Z" fill="#e2e8f0"/>
+                            </svg>
+                            <img id="preview-person-img" 
+                                 src="" 
+                                 alt="Speaker Portrait" 
+                                 class="hidden w-full h-full object-contain object-bottom transition-transform duration-75"
+                                 style="transform: scale(1) translate(0px, 0px);">
+                        </div>
+
+                        <!-- Speaker Name & Designation (Right Side Above Black Wave) -->
+                        <div class="absolute bottom-[115px] right-[65px] z-20 flex items-center gap-[18px] text-right">
+                            <div>
+                                <h2 id="preview-name" class="text-[40px] font-bold text-[#991b1b] leading-tight">
+                                    মুসা আল হাফিজ
+                                </h2>
+                                <p id="preview-title" class="text-[25px] font-semibold text-slate-800 mt-[4px]">
+                                    গবেষক ও ইসলামী চিন্তাবিদ
+                                </p>
+                            </div>
+                            <!-- Vertical Accent Bar -->
+                            <div class="w-[5px] h-[86px] bg-slate-900 rounded-full"></div>
+                        </div>
+
+                        <!-- Curved Red & Black Wave SVG -->
+                        <svg class="absolute bottom-0 left-0 w-full h-[260px] z-10" viewBox="0 0 1080 260" preserveAspectRatio="none">
+                            <!-- Crimson Red Sweeping Curve -->
+                            <path d="M0,45 C290,25 570,185 880,210 C980,218 1040,195 1080,175 L1080,260 L0,260 Z" fill="#dc2626"/>
+                            <!-- Deep Black Sweeping Curve -->
+                            <path d="M0,105 C320,85 600,225 900,232 C990,234 1045,212 1080,190 L1080,260 L0,260 Z" fill="#111111"/>
+                        </svg>
+
+                        <!-- Bottom Website Handle Centered Inside Black Wave -->
+                        <div class="absolute bottom-[16px] left-0 w-full z-20 flex items-center justify-center gap-[10px] text-white text-[24px] font-medium tracking-wide">
+                            <i class="fa-solid fa-globe text-[22px] opacity-90"></i>
+                            <span id="preview-website">voiceofrisingbangla.com</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-5 border border-slate-200 flex flex-col gap-4 bangla-font">
+            
+            <!-- Action Bar: Download Button -->
+            <button id="download-btn" onclick="downloadPhotoCard()" class="w-full py-3 px-4 bg-red-800 hover:bg-red-900 active:scale-[0.99] text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2 text-base">
+                <i class="fa-solid fa-download"></i> ফটো কার্ড ডাউনলোড করুন (1080x1080 HD)
+            </button>
+
+            <!-- Brand Logo & Date Settings -->
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-slate-700">
+                        <i class="fa-solid fa-image text-red-800 mr-1"></i> পোর্টাল লোগো (অটো সেভ থাকবে)
+                    </span>
+                    <button id="reset-logo-btn" onclick="resetLogo()" class="hidden text-xs text-red-700 hover:underline font-semibold">
+                        ডিফল্ট টেক্সট লোগো ফিরিয়ে আনুন
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">লোগো আপলোড করুন (PNG):</label>
+                        <input type="file" id="input-logo" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-800 hover:file:bg-red-100 border border-slate-300 rounded-md p-1 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">তারিখ:</label>
+                        <input type="text" id="input-date" value="০৩ নভেম্বর ২০২৬" oninput="updateText()" class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-red-800">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quote Input with Highlight & Font Size Controls -->
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="text-sm font-bold text-slate-700">মূল বক্তব্য / কোট:</label>
+                    <button type="button" onclick="wrapSelectionWithStars()" class="text-xs bg-red-50 hover:bg-red-100 text-red-800 font-semibold px-2.5 py-1 rounded border border-red-200 transition">
+                        <i class="fa-solid fa-highlighter mr-1"></i> সিলেক্ট করা অংশ লাল করুন (*...*)
+                    </button>
+                </div>
+                <textarea id="input-quote" rows="3" oninput="updateText()" class="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-red-800 leading-relaxed">নিজেদের ভাগ্য বদলানোর জন্য ইসলাম বলে নিজেদের বদলাতে, আর *যে মুসলিমরা অপদার্থ, তারা নিজেদের না বদলিয়ে ইসলামকেই* বদলে দিতে চায়!</textarea>
+                
+                <!-- Quote Font Size Slider -->
+                <div class="mt-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>লেখার ফন্ট সাইজ (বড়/ছোট করুন):</span>
+                        <span id="fontsize-val">48px</span>
+                    </div>
+                    <input type="range" id="input-fontsize" min="32" max="64" step="1" value="48" oninput="updateFontSize()" class="w-full h-1.5 bg-slate-300 rounded-lg cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Speaker Name & Designation -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">বক্তার নাম:</label>
+                    <input type="text" id="input-name" value="মুসা আল হাফিজ" oninput="updateText()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-red-800">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">পদবি / পরিচয়:</label>
+                    <input type="text" id="input-title" value="গবেষক ও ইসলামী চিন্তাবিদ" oninput="updateText()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-red-800">
+                </div>
+            </div>
+
+            <!-- Speaker Photo Upload & Adjustment Sliders -->
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col gap-3">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">
+                        <i class="fa-solid fa-user-tie text-red-800 mr-1"></i> বক্তার ছবি আপলোড করুন (PNG ব্যাকগ্রাউন্ড রিমুভ করা):
+                    </label>
+                    <input type="file" id="input-person" accept="image/*" onchange="handlePersonUpload(event)" class="w-full text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 border border-slate-300 rounded-md p-1 bg-white">
+                </div>
+
+                <!-- Sliders for Photo Scale, X & Y Position -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                            <span>ছবির জুম (Size)</span>
+                            <span id="scale-val">100%</span>
+                        </div>
+                        <input type="range" id="input-scale" min="0.6" max="1.5" step="0.05" value="1" oninput="updatePhotoTransform()" class="w-full h-1.5 bg-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                            <span>ডানে / বামে</span>
+                            <span id="offsetx-val">0px</span>
+                        </div>
+                        <input type="range" id="input-offset-x" min="-80" max="80" step="2" value="0" oninput="updatePhotoTransform()" class="w-full h-1.5 bg-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                            <span>উপরে / নিচে</span>
+                            <span id="offsety-val">0px</span>
+                        </div>
+                        <input type="range" id="input-offset-y" min="-40" max="60" step="2" value="0" oninput="updatePhotoTransform()" class="w-full h-1.5 bg-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Website Handle -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">নিচের ওয়েবসাইট / পেজ লিংক:</label>
+                <input type="text" id="input-website" value="voiceofrisingbangla.com" oninput="updateText()" class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-red-800">
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Custom Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50 bangla-font">
+        মেসেজ
+    </div>
+
+    <script>
+        // Dynamically scale the 1080x1080 card to fit the responsive mobile/desktop wrapper
+        function scaleCardPreview() {
+            const wrapper = document.getElementById('card-wrapper');
+            const card = document.getElementById('photo-card');
+            if (!wrapper || !card) return;
+            const scaleFactor = wrapper.offsetWidth / 1080;
+            card.style.transform = `scale(${scaleFactor})`;
+        }
+
+        window.addEventListener('resize', scaleCardPreview);
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            scaleCardPreview();
+            try {
+                const savedLogo = localStorage.getItem('vorb_brand_logo');
+                if (savedLogo) {
+                    applyBrandLogo(savedLogo);
+                }
+            } catch (e) {
+                console.warn('LocalStorage unavailable:', e);
+            }
+            updateText();
+        });
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag]));
+        }
+
+        function formatQuoteText(rawText) {
+            const safeText = escapeHTML(rawText);
+            return safeText.replace(/\*(.*?)\*/g, '<span class="text-[#991b1b]">$1</span>');
+        }
+
+        function updateText() {
+            const dateVal = document.getElementById('input-date').value;
+            const quoteVal = document.getElementById('input-quote').value;
+            const nameVal = document.getElementById('input-name').value;
+            const titleVal = document.getElementById('input-title').value;
+            const websiteVal = document.getElementById('input-website').value;
+
+            document.getElementById('preview-date').innerText = dateVal;
+            document.getElementById('preview-quote').innerHTML = formatQuoteText(quoteVal);
+            document.getElementById('preview-name').innerText = nameVal;
+            document.getElementById('preview-title').innerText = titleVal;
+            document.getElementById('preview-website').innerText = websiteVal;
+        }
+
+        function updateFontSize() {
+            const size = document.getElementById('input-fontsize').value;
+            document.getElementById('fontsize-val').innerText = size + 'px';
+            document.getElementById('preview-quote').style.fontSize = size + 'px';
+        }
+
+        function wrapSelectionWithStars() {
+            const textarea = document.getElementById('input-quote');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+
+            if (start === end) {
+                showToast('প্রথমে বক্স থেকে কিছু লেখা সিলেক্ট করুন!');
+                return;
+            }
+
+            const selected = text.substring(start, end);
+            const updated = text.substring(0, start) + '*' + selected + '*' + text.substring(end);
+            textarea.value = updated;
+            updateText();
+            showToast('সিলেক্ট করা অংশ লাল করা হয়েছে!');
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                applyBrandLogo(dataUrl);
+                try {
+                    localStorage.setItem('vorb_brand_logo', dataUrl);
+                    showToast('লোগো সেভ করা হয়েছে!');
+                } catch (err) {
+                    showToast('লোগো আপলোড হয়েছে');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyBrandLogo(dataUrl) {
+            const logoImg = document.getElementById('preview-logo-img');
+            const logoText = document.getElementById('preview-logo-text');
+            const resetBtn = document.getElementById('reset-logo-btn');
+
+            logoImg.src = dataUrl;
+            logoImg.classList.remove('hidden');
+            logoText.classList.add('hidden');
+            resetBtn.classList.remove('hidden');
+        }
+
+        function resetLogo() {
+            try {
+                localStorage.removeItem('vorb_brand_logo');
+            } catch (e) {}
+            document.getElementById('preview-logo-img').classList.add('hidden');
+            document.getElementById('preview-logo-text').classList.remove('hidden');
+            document.getElementById('reset-logo-btn').classList.add('hidden');
+            document.getElementById('input-logo').value = '';
+            showToast('ডিফল্ট টেক্সট লোগো ফিরিয়ে আনা হয়েছে');
+        }
+
+        function handlePersonUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const defaultSvg = document.getElementById('default-person-svg');
+                const personImg = document.getElementById('preview-person-img');
+                defaultSvg.classList.add('hidden');
+                personImg.classList.remove('hidden');
+                personImg.src = e.target.result;
+                showToast('বক্তার ছবি যুক্ত হয়েছে!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updatePhotoTransform() {
+            const scale = document.getElementById('input-scale').value;
+            const offsetX = document.getElementById('input-offset-x').value;
+            const offsetY = document.getElementById('input-offset-y').value;
+
+            document.getElementById('scale-val').innerText = Math.round(scale * 100) + '%';
+            document.getElementById('offsetx-val').innerText = offsetX + 'px';
+            document.getElementById('offsety-val').innerText = offsetY + 'px';
+
+            const transformString = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+            document.getElementById('preview-person-img').style.transform = transformString;
+            document.getElementById('default-person-svg').style.transform = transformString;
+        }
+
+        // Exact 1080x1080 PNG Export using html2canvas on unscaled clone
+        async function downloadPhotoCard() {
+            const btn = document.getElementById('download-btn');
+            const card = document.getElementById('photo-card');
+            const originalBtnHTML = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 1080x1080 কার্ড তৈরি হচ্ছে...';
+
+                await document.fonts.ready;
+
+                const canvas = await html2canvas(card, {
+                    width: 1080,
+                    height: 1080,
+                    scale: 1,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc) => {
+                        const clonedCard = clonedDoc.getElementById('photo-card');
+                        clonedCard.style.transform = 'none';
+                        clonedCard.style.position = 'relative';
+                    }
+                });
+
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().slice(0, 10);
+                link.download = `VORB-Quote-Card-${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast('1080x1080 ফটো কার্ড ডাউনলোড হয়েছে!');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('ডাউনলোডে সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন।');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHTML;
+            }
+        }
+    </script>
+</body>
+                              </html>
